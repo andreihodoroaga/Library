@@ -12,7 +12,7 @@ public class AddressRepository {
         addresses = new ArrayList<>();
     }
 
-    public void addAddress(Address address) {
+    public void add(Address address) {
         addresses.add(address);
     }
 
@@ -25,7 +25,7 @@ public class AddressRepository {
         return null;
     }
 
-    public void updateAddress(Address address) {
+    public void update(Address address) {
         for (int i = 0; i < addresses.size(); i++) {
             if (addresses.get(i).getId() == address.getId()) {
                 addresses.set(i, address);
@@ -34,7 +34,7 @@ public class AddressRepository {
         }
     }
 
-    public void deleteAddress(int id) {
+    public void delete(int id) {
         for (int i = 0; i < addresses.size(); i++) {
             if (addresses.get(i).getId() == id) {
                 addresses.remove(i);

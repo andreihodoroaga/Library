@@ -7,11 +7,10 @@ public class Main {
         AddressRepository addressRepository = new AddressRepository();
         AddressService addressService = new AddressService(addressRepository);
 
-        Address address = new Address(1, "123 Main St", "Apt 1", "New York", "NY", 12345);
-        addressService.addAddress(address);
+        addressService.create(1, "Bulevardul Eroilor", "Bucuresti", "Bucuresti", "093453", 10);
 
-        Address retrievedAddress = addressService.getAddressById(address.getId());
-        System.out.println("Retrieved address details:");
+        Address retrievedAddress = addressService.getAddressById(1);
+        System.out.println("Adresa:");
         System.out.println(retrievedAddress.toString());
     }
 }

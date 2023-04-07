@@ -12,9 +12,9 @@ public class AddressService {
         this.addressRepository = addressRepository;
     }
 
-    public void createAddress(int id, String street, String city, String state, String postalCode, int number) {
+    public void create(int id, String street, String city, String state, String postalCode, int number) {
         Address address = new Address(id, street, city, state, postalCode, number);
-        addressRepository.addAddress(address);
+        addressRepository.add(address);
     }
 
     public Address getAddressById(int id) {
@@ -25,15 +25,15 @@ public class AddressService {
         return addressRepository.getAllAddresses();
     }
 
-    public void updateAddress(Address address) {
-        addressRepository.updateAddress(address);
+    public void update(Address address) {
+        addressRepository.update(address);
     }
 
-    public void deleteAddress(int addressId) {
-        addressRepository.deleteAddress(addressId);
+    public void delete(int addressId) {
+        addressRepository.delete(addressId);
     }
 
-    public void addAddress(Address address) {
-        addressRepository.addAddress((address));
+    public void add(Address address) {
+        addressRepository.add((address));
     }
 }
