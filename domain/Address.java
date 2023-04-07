@@ -1,18 +1,24 @@
 package domain;
 
 public class Address {
+    private int id;
     private String street;
     private String city;
     private String state;
     private String postalCode;
     private int number;
 
-    public Address(String street, String city, String state, String postalCode, int number) {
+    public Address(int id, String street, String city, String state, String postalCode, int number) {
+        this.id = id;
         this.street = street;
         this.city = city;
         this.state = state;
         this.postalCode = postalCode;
         this.number = number;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getStreet() {
