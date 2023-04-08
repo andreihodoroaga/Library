@@ -43,9 +43,14 @@ public class Main {
         if (book.isPresent()) {
             Book duneBook = book.get();
             member1.borrowBook(duneBook, LocalDate.now().plus(Period.ofWeeks(1)));
+
+            // Return Dune and add a review to it
+            member1.returnBook(duneBook, "The greatest book I've ever read!!!");
+            System.out.println(duneBook.getReviews());
         } else {
             System.out.println("Dune not found");
         }
+
 
         // Borrow a book without any copies left
         Optional<Book> book1 = bookService.findFirstByTitle("Lord of the Rings");

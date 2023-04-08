@@ -3,6 +3,7 @@ package domain;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Book {
     private Long id;
@@ -11,8 +12,8 @@ public class Book {
     private Publisher publisher;
     private LocalDate publicationDate;
     private Genre genre;
-
     private int count;
+    private List<String> reviews;
 
     public Book(String title, Publisher publisher, LocalDate publicationDate, Genre genre, int count) {
         this.title = title;
@@ -72,5 +73,16 @@ public class Book {
 
     public void setGenre(Genre genre) {
         this.genre = genre;
+    }
+
+    public List<String> getReviews() { return reviews; }
+
+    public void addReview(String review) {
+        if (!Objects.equals(review, "")) {
+            if (reviews == null) {
+                reviews = new ArrayList<>();
+            }
+            reviews.add(review);
+        }
     }
 }

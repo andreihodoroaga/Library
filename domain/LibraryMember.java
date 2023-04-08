@@ -42,6 +42,10 @@ public class LibraryMember extends LibraryPerson {
     }
 
     public void returnBook(Book book) {
+        returnBook(book, "");
+    }
+
+    public void returnBook(Book book, String review) {
         // Find the transaction for the book being returned
         for (BorrowingTransaction transaction : borrowedBooks) {
             if (transaction.getBook().equals(book)) {
@@ -50,6 +54,7 @@ public class LibraryMember extends LibraryPerson {
                 borrowedBooks.remove(transaction);
                 // Increase the count for the book
                 book.setCount(book.getCount() + 1);
+                book.addReview(review);
                 return;
             }
         }

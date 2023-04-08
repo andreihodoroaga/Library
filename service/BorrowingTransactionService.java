@@ -22,11 +22,17 @@ public class BorrowingTransactionService {
     }
 
     public void returnBook(Book book, LibraryMember member, LocalDate returnDate) {
+        returnBook(book, member, returnDate, "");
+    }
+
+    public void returnBook(Book book, LibraryMember member, LocalDate returnDate, String review) {
         Optional<BorrowingTransaction> transaction = repository.findById(book.getId());
         if (transaction.isPresent()) {
             transaction.get().setReturnDate(returnDate);
+            book.addReview(review);
         }
     }
+
 
     public List<BorrowingTransaction> getAllTransactions() {
         return repository.findAll();
