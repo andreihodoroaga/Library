@@ -1,6 +1,8 @@
 package service;
 
+import domain.Author;
 import domain.Book;
+import domain.Genre;
 import repository.BookRepository;
 
 import java.util.List;
@@ -40,5 +42,12 @@ public class BookService {
 
     public Optional<Book> findFirstByTitle(String title) {
         return bookRepository.findFirstByTitle(title);
+    }
+
+    public List<Book> filterByAuthor(Author author) {
+        return bookRepository.filterByAuthor(author);
+    }
+    public List<Book> filterByGenre(Genre genre) {
+        return bookRepository.filterByGenre(genre);
     }
 }

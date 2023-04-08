@@ -1,12 +1,14 @@
 package repository;
 
+import domain.Author;
 import domain.Book;
+import domain.Genre;
 
 import java.util.*;
 
 public class BookRepository {
 
-    private Map<Long, Book> bookMap = new HashMap<>();
+    private final Map<Long, Book> bookMap = new HashMap<>();
     private long nextId = 1L;
 
     public Book findById(Long id) {
@@ -44,5 +46,25 @@ public class BookRepository {
         return bookMap.values().stream()
                 .filter(book -> book.getTitle().equals(title))
                 .findFirst();
+    }
+
+    public List<Book> filterByAuthor(Author author) {
+        List<Book> books = new ArrayList<>();
+        for (Book book : bookMap.values()) {
+            if (book.getAuthors().contains(author)) {
+                books.add(book);
+            }
+        }
+        return books;
+    }
+
+    public List<Book> filterByGenre(Genre genre) {
+        List<Book> books = new ArrayList<>();
+        for (Book book : bookMap.values()) {
+            if (book.getGenre().equals(genre)) {
+                books.add(book);
+            }
+        }
+        return books;
     }
 }

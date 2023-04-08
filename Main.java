@@ -30,7 +30,7 @@ public class Main {
                                                                     "which typically deals with imaginative and futuristic concepts such as advanced science and technology," +
                                                                     " space exploration, time travel, parallel universes, and extraterrestrial life.", 9.2);
 
-        // Create two new books
+        // Create two books
         bookService.save(new Book("Dune", bestBooksPublisher, LocalDate.now(), sfGenre, 2));
         bookService.save(new Book("Lord of the Rings", bestBooksPublisher, LocalDate.now(), sfGenre, 1));
 
