@@ -1,14 +1,25 @@
 package domain;
 
 public class LibraryPerson {
+    private Long id;
+
     private String name;
     private String email;
     private Address address;
 
-    public LibraryPerson(String name, String email, Address address) {
+    public LibraryPerson(Long id, String name, String email, Address address) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.address = address;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

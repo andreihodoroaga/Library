@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryMember extends LibraryPerson {
+    private String phoneNumber;
     private final String memberId;
     private List<BorrowingTransaction> borrowedBooks;
 
-    public LibraryMember(String memberId, String name, String email, String phoneNumber, Address address) {
-        super(name, email, address);
+    public LibraryMember(Long id, String memberId, String name, String email, String phoneNumber, Address address) {
+        super(id, name, email, address);
         this.memberId = memberId;
+        this.phoneNumber = phoneNumber;
         this.borrowedBooks = new ArrayList<>();
     }
 
