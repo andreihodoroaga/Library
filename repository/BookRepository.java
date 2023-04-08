@@ -29,7 +29,7 @@ public class BookRepository {
     public void delete(Long id) {
         bookMap.remove(id);
     }
-   
+
     public List<Book> findByTitle(String title) {
         List<Book> books = new ArrayList<>();
         for (Book book : bookMap.values()) {

@@ -9,9 +9,15 @@ import java.util.Optional;
 public class BorrowingTransactionRepository {
     private final List<BorrowingTransaction> transactions = new ArrayList<>();
 
+    // Make sure the transactions are sorted by the borrow date
     public void add(BorrowingTransaction transaction) {
-        transactions.add(transaction);
+        int i = 0;
+        while (i < transactions.size() && transaction.getBorrowDate().isAfter(transactions.get(i).getBorrowDate())) {
+            i++;
+        }
+        transactions.add(i, transaction);
     }
+
 
     public Optional<BorrowingTransaction> findById(Long id) {
         return transactions.stream()
