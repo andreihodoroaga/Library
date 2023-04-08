@@ -7,7 +7,7 @@ import java.util.List;
 public class LibraryMember extends LibraryPerson {
     private String phoneNumber;
     private final String memberId;
-    private List<BorrowingTransaction> borrowedBooks;
+    private final List<BorrowingTransaction> borrowedBooks;
 
     public LibraryMember(Long id, String memberId, String name, String email, String phoneNumber, Address address) {
         super(id, name, email, address);
@@ -21,6 +21,11 @@ public class LibraryMember extends LibraryPerson {
     }
 
     public void borrowBook(Book book, LocalDate dueDate) {
+        // Check if there are any books left
+        if (book.getCount() == 0) {
+            throw new IllegalArgumentException("There isn't any book of this kind left");
+        }
+
         // Check if the member has already borrowed the book
         for (BorrowingTransaction transaction : borrowedBooks) {
             if (transaction.getBook().equals(book)) {
@@ -33,6 +38,7 @@ public class LibraryMember extends LibraryPerson {
         // If the member hasn't already borrowed the book, create a new transaction
         BorrowingTransaction transaction = new BorrowingTransaction(this, book, LocalDate.now(), dueDate);
         borrowedBooks.add(transaction);
+        book.setCount(book.getCount() - 1);
     }
 
     public void returnBook(Book book) {
@@ -42,6 +48,8 @@ public class LibraryMember extends LibraryPerson {
                 // Update the transaction date and remove it from the borrowed books list
                 transaction.setReturnDate(LocalDate.now());
                 borrowedBooks.remove(transaction);
+                // Increase the count for the book
+                book.setCount(book.getCount() + 1);
                 return;
             }
         }

@@ -12,11 +12,14 @@ public class Book {
     private LocalDate publicationDate;
     private Genre genre;
 
-    public Book(String title, Publisher publisher, LocalDate publicationDate, Genre genre) {
+    private int count;
+
+    public Book(String title, Publisher publisher, LocalDate publicationDate, Genre genre, int count) {
         this.title = title;
         this.publisher = publisher;
         this.publicationDate = publicationDate;
         this.genre = genre;
+        this.count = count;
     }
 
     public Long getId() {
@@ -26,6 +29,10 @@ public class Book {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public int getCount() { return count; }
+
+    public void setCount(int count) { this.count = count; }
 
     public String getTitle() {
         return title;
