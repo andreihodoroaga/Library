@@ -3,11 +3,13 @@ package domain;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class LibraryMember extends LibraryPerson {
     private String phoneNumber;
     private final String memberId;
     private final List<BorrowingTransaction> borrowedBooks;
+    private Set<Book> favoriteBooks;
 
     public LibraryMember(Long id, String memberId, String name, String email, String phoneNumber, Address address) {
         super(id, name, email, address);
@@ -76,5 +78,17 @@ public class LibraryMember extends LibraryPerson {
                 ", address=" + getAddress() +
                 ", borrowedBooks=" + borrowedBooks +
                 '}';
+    }
+
+    public Set<Book> getFavoriteBooks() {
+        return favoriteBooks;
+    }
+
+    public void setFavoriteBooks(Set<Book> favoriteBooks) {
+        this.favoriteBooks = favoriteBooks;
+    }
+
+    public void addFavoriteBook(Book book) {
+        favoriteBooks.add(book);
     }
 }
