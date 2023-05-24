@@ -7,6 +7,9 @@ public class Author {
     private String name;
     private LocalDate dateOfBirth;
 
+    public Author() {
+        // Default constructor
+    }
     public Author(String name, LocalDate dateOfBirth) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;

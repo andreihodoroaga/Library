@@ -1,48 +1,38 @@
 package repository;
 
-import java.util.ArrayList;
+import domain.Author;
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
+
 import java.util.List;
 
-import domain.Author;
-
 public class AuthorRepository {
-    private List<Author> authors;
-    private Long nextId;
+    private final DatabaseReaderService<Author> readerService;
+    private final DatabaseWriterService<Author> writerService;
 
-    public AuthorRepository() {
-        authors = new ArrayList<>();
-        nextId = 1L;
+    public AuthorRepository(DatabaseReaderService<Author> readerService, DatabaseWriterService<Author> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
     }
 
     public Author getById(Long id) {
-        for (Author author : authors) {
-            if (author.getId().equals(id)) {
-                return author;
-            }
-        }
-        return null;
+        return readerService.read(Author.class, id);
     }
 
     public List<Author> getAll() {
-        return authors;
+        return readerService.readAll(Author.class);
     }
 
     public Author add(Author author) {
-        author.setId(nextId++);
-        authors.add(author);
+        writerService.write(author);
         return author;
     }
 
     public void delete(Author author) {
-        authors.remove(author);
+        writerService.delete(author);
     }
 
     public void update(Author author) {
-        for (int i = 0; i < authors.size(); i++) {
-            if (authors.get(i).getId().equals(author.getId())) {
-                authors.set(i, author);
-                break;
-            }
-        }
+        writerService.update(author);
     }
 }
