@@ -8,8 +8,7 @@ public class Address {
     private String postalCode;
     private int number;
 
-    public Address(int id, String street, String city, String state, String postalCode, int number) {
-        this.id = id;
+    public Address(String street, String city, String state, String postalCode, int number) {
         this.street = street;
         this.city = city;
         this.state = state;

@@ -8,8 +8,8 @@ import repository.GenreRepository;
 public class GenreService {
     private final GenreRepository genreRepository;
 
-    public GenreService() {
-        genreRepository = new GenreRepository();
+    public GenreService(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
     }
 
     public Genre createGenre(String name, String description, double popularityScore) {

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class BookService {
-
     private final BookRepository bookRepository;
 
     public BookService(BookRepository bookRepository) {
@@ -32,8 +31,8 @@ public class BookService {
         bookRepository.update(book);
     }
 
-    public void delete(Long id) {
-        bookRepository.delete(id);
+    public void delete(Book book) {
+        bookRepository.delete(book);
     }
 
     public List<Book> findByTitle(String title) {

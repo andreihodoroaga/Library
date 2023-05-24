@@ -9,18 +9,25 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-//        DatabaseWriterService<Author> dbWriter = DatabaseWriterService.getInstance();
-//        dbWriter.write(author);
-        DatabaseReaderService<Author> readerService = DatabaseReaderService.getInstance();
-        DatabaseWriterService<Author> writerService = DatabaseWriterService.getInstance();
+        DatabaseReaderService<Author> authorReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<Author> authorWriterService = DatabaseWriterService.getInstance();
+        AuthorService authorService = new AuthorService(new AuthorRepository(authorReaderService, authorWriterService));
+        DatabaseReaderService<Book> bookReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<Book> bookWriterService = DatabaseWriterService.getInstance();
+        BookService bookService = new BookService(new BookRepository(bookReaderService, bookWriterService));
 
-        AuthorService authorService = new AuthorService(new AuthorRepository(readerService, writerService));
-        authorService.deleteAuthor(authorService.getAuthorById(3L));
-        List<Author> authors = authorService.getAllAuthors();
+        DatabaseReaderService<Address> addressReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<Address> addressWriterService = DatabaseWriterService.getInstance();
+        AddressService addressService = new AddressService(new AddressRepository(addressReaderService, addressWriterService));
 
-        for (Author author : authors) {
-            System.out.println(author.getName());
-            // ... do something with the author object
-        }
+        DatabaseReaderService<Genre> genreReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<Genre> genreWriterService = DatabaseWriterService.getInstance();
+        GenreService genreService = new GenreService(new GenreRepository(genreReaderService, genreWriterService));
+
+        DatabaseReaderService<Publisher> publisherReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<Publisher> publisherWriterService = DatabaseWriterService.getInstance();
+        PublisherService publisherService = new PublisherService(new PublisherRepository(publisherReaderService, publisherWriterService));
+
     }
 }
+

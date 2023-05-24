@@ -1,49 +1,38 @@
 package repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
 import domain.Publisher;
 
-public class PublisherRepository {
-    private final List<Publisher> publishers;
-    private Long nextId;
+import java.util.List;
 
-    public PublisherRepository() {
-        publishers = new ArrayList<>();
-        nextId = 1L;
+public class PublisherRepository {
+    private final DatabaseReaderService<Publisher> readerService;
+    private final DatabaseWriterService<Publisher> writerService;
+
+    public PublisherRepository(DatabaseReaderService<Publisher> readerService, DatabaseWriterService<Publisher> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
     }
 
     public Publisher save(Publisher publisher) {
-        publisher.setId(nextId++);
-        publishers.add(publisher);
+        writerService.write(publisher);
         return publisher;
     }
 
     public Publisher findById(Long id) {
-        for (Publisher publisher : publishers) {
-            if (publisher.getId().equals(id)) {
-                return publisher;
-            }
-        }
-        return null;
+        return readerService.read(Publisher.class, id);
     }
 
     public List<Publisher> findAll() {
-        return publishers;
+        return readerService.readAll(Publisher.class);
     }
 
     public void delete(Publisher publisher) {
-        publishers.remove(publisher);
+        writerService.delete(publisher);
     }
 
     public void update(Publisher publisher) {
-        for (int i = 0; i < publishers.size(); i++) {
-            Publisher p = publishers.get(i);
-            if (p.getId().equals(publisher.getId())) {
-                publishers.set(i, publisher);
-                return;
-            }
-        }
+        writerService.update(publisher);
     }
 }

@@ -18,7 +18,6 @@ public class BorrowingTransactionRepository {
         transactions.add(i, transaction);
     }
 
-
     public Optional<BorrowingTransaction> findById(Long id) {
         return transactions.stream()
                 .filter(t -> t.getBook().getId().equals(id))

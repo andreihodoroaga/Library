@@ -12,8 +12,8 @@ public class AddressService {
         this.addressRepository = addressRepository;
     }
 
-    public void create(int id, String street, String city, String state, String postalCode, int number) {
-        Address address = new Address(id, street, city, state, postalCode, number);
+    public void create( String street, String city, String state, String postalCode, int number) {
+        Address address = new Address(street, city, state, postalCode, number);
         addressRepository.add(address);
     }
 

@@ -1,49 +1,40 @@
 package repository;
 
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
 import domain.Address;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AddressRepository {
-    private List<Address> addresses;
+    private final DatabaseReaderService<Address> readerService;
+    private final DatabaseWriterService<Address> writerService;
 
-    public AddressRepository() {
-        addresses = new ArrayList<>();
-    }
-
-    public void add(Address address) {
-        addresses.add(address);
+    public AddressRepository(DatabaseReaderService<Address> readerService, DatabaseWriterService<Address> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
     }
 
     public Address getAddressById(int id) {
-        for (Address address : addresses) {
-            if (address.getId() == id) {
-                return address;
-            }
-        }
-        return null;
-    }
-
-    public void update(Address address) {
-        for (int i = 0; i < addresses.size(); i++) {
-            if (addresses.get(i).getId() == address.getId()) {
-                addresses.set(i, address);
-                break;
-            }
-        }
-    }
-
-    public void delete(int id) {
-        for (int i = 0; i < addresses.size(); i++) {
-            if (addresses.get(i).getId() == id) {
-                addresses.remove(i);
-                break;
-            }
-        }
+        return readerService.read(Address.class, (long) id);
     }
 
     public List<Address> getAllAddresses() {
-        return addresses;
+        return readerService.readAll(Address.class);
+    }
+
+    public void add(Address address) {
+        writerService.write(address);
+    }
+
+    public void update(Address address) {
+        writerService.update(address);
+    }
+
+    public void delete(int id) {
+        Address address = getAddressById(id);
+        if (address != null) {
+            writerService.delete(address);
+        }
     }
 }

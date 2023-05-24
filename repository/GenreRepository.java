@@ -1,50 +1,38 @@
 package repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
 import domain.Genre;
 
-public class GenreRepository {
-    private final List<Genre> genres;
-    private Long nextId;
+import java.util.List;
 
-    public GenreRepository() {
-        genres = new ArrayList<>();
-        nextId = 1L;
+public class GenreRepository {
+    private final DatabaseReaderService<Genre> readerService;
+    private final DatabaseWriterService<Genre> writerService;
+
+    public GenreRepository(DatabaseReaderService<Genre> readerService, DatabaseWriterService<Genre> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
     }
 
     public Genre save(Genre genre) {
-        genre.setId(nextId++);
-        genres.add(genre);
+        writerService.write(genre);
         return genre;
     }
 
     public Genre findById(Long id) {
-        for (Genre genre : genres) {
-            if (genre.getId().equals(id)) {
-                return genre;
-            }
-        }
-        return null;
+        return readerService.read(Genre.class, id);
     }
 
     public List<Genre> findAll() {
-        return genres;
+        return readerService.readAll(Genre.class);
     }
 
     public void delete(Genre genre) {
-        genres.remove(genre);
+        writerService.delete(genre);
     }
 
     public void update(Genre genreToUpdate) {
-        for (Genre genre : genres) {
-            if (genre.getId().equals(genreToUpdate.getId())) {
-                genre.setName(genreToUpdate.getName());
-                genre.setDescription(genreToUpdate.getDescription());
-                genre.setPopularityScore(genreToUpdate.getPopularityScore());
-                break;
-            }
-        }
+        writerService.update(genreToUpdate);
     }
 }
