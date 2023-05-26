@@ -43,7 +43,7 @@ public class LibraryMember extends LibraryPerson {
         for (Long bookId : borrowedBooksIds) {
             if (bookId.equals(book.getId())) {
                 // Book is already borrowed, so just update the transaction date
-                // TODO: Update the transaction date
+
                 return;
             }
         }

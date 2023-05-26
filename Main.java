@@ -1,4 +1,5 @@
 import database.DatabaseReaderService;
+import database.DatabaseService;
 import database.DatabaseWriterService;
 import domain.*;
 import repository.*;
@@ -14,7 +15,7 @@ public class Main {
         AuthorService authorService = new AuthorService(new AuthorRepository(authorReaderService, authorWriterService));
         DatabaseReaderService<Book> bookReaderService = DatabaseReaderService.getInstance();
         DatabaseWriterService<Book> bookWriterService = DatabaseWriterService.getInstance();
-        BookService bookService = new BookService(new BookRepository(bookReaderService, bookWriterService));
+        BookService bookService = new BookService(new BookRepository(bookReaderService, bookWriterService, new DatabaseService()));
 
         DatabaseReaderService<Address> addressReaderService = DatabaseReaderService.getInstance();
         DatabaseWriterService<Address> addressWriterService = DatabaseWriterService.getInstance();
@@ -30,7 +31,7 @@ public class Main {
 
         DatabaseReaderService<LibraryMember> libraryMemberReaderService = DatabaseReaderService.getInstance();
         DatabaseWriterService<LibraryMember> libraryMemberWriterService = DatabaseWriterService.getInstance();
-        LibraryMemberService libraryMemberService = new LibraryMemberService(new LibraryMemberRepository(libraryMemberReaderService, libraryMemberWriterService));
+        LibraryMemberService libraryMemberService = new LibraryMemberService(new LibraryMemberRepository(libraryMemberReaderService, libraryMemberWriterService, new DatabaseService()));
 
         LibraryManager libraryManager = new LibraryManager(bookService, authorService, publisherService, genreService, libraryMemberService, addressService);
         libraryManager.start();

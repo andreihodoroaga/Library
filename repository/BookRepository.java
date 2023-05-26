@@ -1,26 +1,28 @@
 package repository;
 
 import database.DatabaseReaderService;
+import database.DatabaseService;
 import database.DatabaseWriterService;
 import domain.Author;
 import domain.Book;
 import domain.Genre;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class BookRepository {
     private final DatabaseReaderService<Book> readerService;
     private final DatabaseWriterService<Book> writerService;
+    private final DatabaseService databaseService;
 
-    public BookRepository(DatabaseReaderService<Book> readerService, DatabaseWriterService<Book> writerService) {
+    public BookRepository(DatabaseReaderService<Book> readerService, DatabaseWriterService<Book> writerService, DatabaseService databaseService) {
         this.readerService = readerService;
         this.writerService = writerService;
+        this.databaseService = databaseService;
     }
 
     public Book findById(Long id) {
@@ -28,30 +30,51 @@ public class BookRepository {
     }
 
     public List<Book> findAll() {
-        return readerService.readAll(Book.class);
+        List<Book> books = new ArrayList<>();
+        String query = "SELECT * FROM book";
+
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                String title = resultSet.getString("title");
+                Array authorIdsArray = resultSet.getArray("authorids");
+                List<Long> authorIds = Arrays.asList((Long[]) authorIdsArray.getArray());
+                LocalDate publicationDate = resultSet.getDate("publicationdate").toLocalDate();
+                Long genreId = resultSet.getLong("genreid");
+                int count = resultSet.getInt("count");
+                Long publisherId = resultSet.getLong("publisherid");
+                Array reviewsArray = resultSet.getArray("reviews");
+                List<String> reviews = null;
+
+                if (reviewsArray != null) {
+                    reviews = Arrays.asList((String[]) reviewsArray.getArray());
+                }
+
+                Book book = new Book(title, authorIds, publisherId, publicationDate, genreId, count);
+                book.setId(id);
+                book.setPublisherId(publisherId);
+                book.setReviews(reviews);
+
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            // Handle any exceptions
+            e.printStackTrace();
+        }
+
+        return books;
     }
 
     public void save(Book book) {
         writerService.write(book);
     }
 
-    public Connection getConnection() throws SQLException {
-        String DB_URL = "jdbc:postgresql://localhost:5432/library";
-        String DB_USER = "postgres";
-        String DB_PASSWORD = "1234";
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Failed to load PostgreSQL JDBC driver");
-        }
-
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-    }
-
     public void update(Book book) {
-        String query = "UPDATE book SET title = ?, authorids = ?, publicationdate = ?, genreid = ?, count = ? WHERE id = ?";
+        String query = "UPDATE book SET title = ?, authorids = ?, publicationdate = ?, genreid = ?, count = ?, reviews = CAST(? AS text[]) WHERE id = ?";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = databaseService.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
             // Set the values for the update query
             statement.setString(1, book.getTitle());
@@ -59,7 +82,12 @@ public class BookRepository {
             statement.setDate(3, java.sql.Date.valueOf(book.getPublicationDate()));
             statement.setLong(4, book.getGenreId());
             statement.setInt(5, book.getCount());
-            statement.setLong(6, book.getId());
+
+            // Convert the reviews list to a suitable array format
+            Array reviewsArray = connection.createArrayOf("text", book.getReviews().toArray());
+            statement.setArray(6, reviewsArray);
+
+            statement.setLong(7, book.getId());
 
             // Execute the update query
             statement.executeUpdate();
@@ -68,6 +96,7 @@ public class BookRepository {
             e.printStackTrace();
         }
     }
+
 
     public void delete(Book book) {
         writerService.delete(book);

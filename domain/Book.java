@@ -25,7 +25,7 @@ public class Book {
     }
 
     public Book() {
-        // default constructor
+        reviews = new ArrayList<>();
     }
 
     public Long getId() {
@@ -88,12 +88,16 @@ public class Book {
         return reviews;
     }
 
-    public void addReview(String review) {
-        if (!Objects.equals(review, "")) {
-            if (reviews == null) {
-                reviews = new ArrayList<>();
-            }
-            reviews.add(review);
-        }
+    public void setReviews(List<String> reviews) {
+        this.reviews = reviews;
     }
+
+    public void addReview(String review) {
+        if (reviews == null) {
+            reviews = new ArrayList<>();
+        }
+        reviews = new ArrayList<>(reviews);
+        reviews.add(review);
+    }
+
 }

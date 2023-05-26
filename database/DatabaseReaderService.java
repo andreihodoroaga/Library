@@ -18,30 +18,18 @@ import java.util.List;
 
 public class DatabaseReaderService<T> {
     private static DatabaseReaderService instance;
-    private Connection connection;
-
     private final AuditService auditService;
+    private final DatabaseService databaseService;
 
-    private DatabaseReaderService(AuditService auditService) {
+    private DatabaseReaderService(AuditService auditService, DatabaseService databaseService) {
         this.auditService = auditService;
-
-        // Initialize the database connection
-        String url = "jdbc:postgresql://localhost:5432/library";
-        String username = "postgres";
-        String password = "1234";
-
-        try {
-            connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Database connection successful!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        this.databaseService = databaseService;
     }
 
     // Method to get the singleton instance
     public static DatabaseReaderService getInstance() {
         if (instance == null) {
-            instance = new DatabaseReaderService(new AuditService("audit.csv"));
+            instance = new DatabaseReaderService(new AuditService("audit.csv"), new DatabaseService());
         }
         return instance;
     }
@@ -49,7 +37,7 @@ public class DatabaseReaderService<T> {
     public List<T> readAll(Class<T> objectClass) {
         List<T> resultList = new ArrayList<>();
 
-        if (connection == null) {
+        if (databaseService.getConnection() == null) {
             System.err.println("Database connection is not available.");
             return resultList;
         }
@@ -57,7 +45,7 @@ public class DatabaseReaderService<T> {
         String tableName = getTableName(objectClass);
         String sql = generateSelectStatement(tableName);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql);
+        try (PreparedStatement statement = databaseService.getConnection().prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -74,7 +62,7 @@ public class DatabaseReaderService<T> {
     }
 
     public T read(Class<T> objectClass, Long id) {
-        if (connection == null) {
+        if (databaseService.getConnection() == null) {
             System.err.println("Database connection is not available.");
             return null;
         }
@@ -84,7 +72,7 @@ public class DatabaseReaderService<T> {
         String sql = generateSelectStatement(tableName) + " WHERE id = ?";
         auditService.writeAuditLog("read from " + tableName);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = databaseService.getConnection().prepareStatement(sql)) {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
 

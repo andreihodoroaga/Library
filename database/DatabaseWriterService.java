@@ -3,48 +3,36 @@ package database;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseWriterService<T> {
     private static DatabaseWriterService instance;
-    private Connection connection;
     private AuditService auditService;
+    private DatabaseService databaseService;
 
-    private DatabaseWriterService(AuditService auditService) {
+    private DatabaseWriterService(AuditService auditService, DatabaseService databaseService) {
         this.auditService = auditService;
-
-        // Initialize the database connection
-        String url = "jdbc:postgresql://localhost:5432/library";
-        String username = "postgres";
-        String password = "1234";
-
-        try {
-            connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Database connection successful!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        this.databaseService = databaseService;
     }
 
     // Method to get the singleton instance
     public static DatabaseWriterService getInstance() {
         if (instance == null) {
-            instance = new DatabaseWriterService(new AuditService("audit.csv"));
+            instance = new DatabaseWriterService(new AuditService("audit.csv"), new DatabaseService());
         }
         return instance;
     }
 
     public void write(T object) {
-        if (connection == null) {
-            System.err.println("Database connection is not available.");
+        if (databaseService.getConnection() == null) {
+            System.err.println("Database databaseService.getConnection() is not available.");
             return;
         }
 
         String tableName = getTableName(object);
         String sql = generateInsertStatement(object, tableName);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = databaseService.getConnection().prepareStatement(sql)) {
             setStatementParameters(statement, object);
             statement.executeUpdate();
 
@@ -84,14 +72,14 @@ public class DatabaseWriterService<T> {
                         // Manually create an array of java.sql.Array objects
                         Array[] authorIdArrays = new Array[arrayValue.length];
                         for (int i = 0; i < arrayValue.length; i++) {
-                            authorIdArrays[i] = connection.createArrayOf("bigint", new Object[]{arrayValue[i]});
+                            authorIdArrays[i] = databaseService.getConnection().createArrayOf("bigint", new Object[]{arrayValue[i]});
                         }
 
                         // Set the array of java.sql.Array objects as the parameter value
-                        statement.setArray(parameterIndex, connection.createArrayOf("bigint", authorIdArrays));
+                        statement.setArray(parameterIndex, databaseService.getConnection().createArrayOf("bigint", authorIdArrays));
                     } else {
                         // Convert the ArrayList to an Array and set it as the parameter value
-                        Array array = connection.createArrayOf("varchar", listValue.toArray());
+                        Array array = databaseService.getConnection().createArrayOf("varchar", listValue.toArray());
                         statement.setArray(parameterIndex, array);
                     }
                 } else {
@@ -106,15 +94,15 @@ public class DatabaseWriterService<T> {
     }
 
     public void update(T object) {
-        if (connection == null) {
-            System.err.println("Database connection is not available.");
+        if (databaseService.getConnection() == null) {
+            System.err.println("Database databaseService.getConnection() is not available.");
             return;
         }
 
         String tableName = getTableName(object);
         String sql = generateUpdateStatement(object, tableName);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = databaseService.getConnection().prepareStatement(sql)) {
             statement.executeUpdate();
 
             auditService.writeAuditLog("update to " + tableName);
@@ -125,15 +113,15 @@ public class DatabaseWriterService<T> {
     }
 
     public void delete(T object) {
-        if (connection == null) {
-            System.err.println("Database connection is not available.");
+        if (databaseService.getConnection() == null) {
+            System.err.println("Database databaseService.getConnection() is not available.");
             return;
         }
 
         String tableName = getTableName(object);
         String sql = generateDeleteStatement(object, tableName);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = databaseService.getConnection().prepareStatement(sql)) {
             statement.executeUpdate();
 
             auditService.writeAuditLog("delete from " + tableName);

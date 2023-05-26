@@ -36,9 +36,10 @@ public class LibraryManager {
             System.out.println("4. Add member");
             System.out.println("5. Borrow book for member");
             System.out.println("6. Return book for member");
-            System.out.println("7. Favorite book for member");
-            System.out.println("8. Don't click this yet");
-            System.out.println("9. Exit");
+            System.out.println("7. Add book to favorites for member");
+            System.out.println("8. Add book review");
+            System.out.println("9. View available genres");
+            System.out.println("10. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -67,8 +68,12 @@ public class LibraryManager {
                     addFavoriteBook();
                     break;
                 case 8:
+                    addReviewToBook();
                     break;
                 case 9:
+                    listGenres();
+                    break;
+                case 10:
                     System.out.println("Exiting the application...");
                     return;
                 default:
@@ -267,6 +272,54 @@ public class LibraryManager {
         libraryMemberService.update(member);
 
         System.out.println("Book added to favorites successfully!");
+    }
+
+    private void addReviewToBook() {
+        System.out.println("Adding a review to a book...");
+
+        // List all books
+        List<Book> books = bookService.findAll();
+        if (books.isEmpty()) {
+            System.out.println("No books found.");
+            return;
+        }
+
+        System.out.println("Select a book to add a review:");
+        for (int i = 0; i < books.size(); i++) {
+            System.out.println((i + 1) + ". " + books.get(i).getTitle());
+        }
+
+        // Prompt the user to select a book
+        System.out.print("Enter the number of the book: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+        Book selectedBook = books.get(choice - 1);
+
+        // Prompt the user to enter a review
+        System.out.print("Enter your review of the book: ");
+        String review = scanner.nextLine();
+
+        // Add the review to the selected book
+        selectedBook.addReview(review);
+
+        // Update the book in the database
+        bookService.update(selectedBook);
+
+        System.out.println("Review added successfully!");
+    }
+
+    public void listGenres() {
+        System.out.println("List of all genres:");
+
+        List<Genre> genres = genreService.findAllGenres();
+        if (genres.isEmpty()) {
+            System.out.println("No genres found.");
+            return;
+        }
+
+        for (Genre genre : genres) {
+            System.out.println(genre.getId() + ". " + genre.getName());
+        }
     }
 
 

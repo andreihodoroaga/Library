@@ -1,5 +1,6 @@
 package repository;
 
+import database.DatabaseService;
 import domain.LibraryMember;
 import database.DatabaseReaderService;
 import database.DatabaseWriterService;
@@ -10,18 +11,20 @@ import java.util.*;
 public class LibraryMemberRepository {
     private final DatabaseReaderService<LibraryMember> readerService;
     private final DatabaseWriterService<LibraryMember> writerService;
+    private final DatabaseService databaseService;
 
     public LibraryMemberRepository(DatabaseReaderService<LibraryMember> readerService,
-                                   DatabaseWriterService<LibraryMember> writerService) {
+                                   DatabaseWriterService<LibraryMember> writerService, DatabaseService databaseService) {
         this.readerService = readerService;
         this.writerService = writerService;
+        this.databaseService = databaseService;
     }
 
     public void save(LibraryMember libraryMember) {
         // Exclude the borrowedBooks property from the database insert query
         String query = "INSERT INTO librarymember (name, email, addressid, memberid) VALUES (?, ?, ?, ?)";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = databaseService.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
             // Set the values for the insert query
             statement.setString(1, libraryMember.getName());
@@ -37,19 +40,6 @@ public class LibraryMemberRepository {
         }
     }
 
-    public Connection getConnection() throws SQLException {
-        String DB_URL = "jdbc:postgresql://localhost:5432/library";
-        String DB_USER = "postgres";
-        String DB_PASSWORD = "1234";
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Failed to load PostgreSQL JDBC driver");
-        }
-
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-    }
-
     public LibraryMember findById(Long id) {
         return readerService.read(LibraryMember.class, id);
     }
@@ -58,7 +48,7 @@ public class LibraryMemberRepository {
         List<LibraryMember> libraryMembers = new ArrayList<>();
         String query = "SELECT id, name, email, addressid, memberid, borrowedBooksIds, favoriteBooksIds FROM librarymember";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = databaseService.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -98,7 +88,6 @@ public class LibraryMemberRepository {
         return libraryMembers;
     }
 
-
     public void delete(LibraryMember libraryMember) {
         writerService.delete(libraryMember);
     }
@@ -106,7 +95,7 @@ public class LibraryMemberRepository {
     public void update(LibraryMember libraryMember) {
         String query = "UPDATE librarymember SET name = ?, email = ?, addressid = ?, memberid = ?, borrowedBooksIds = CAST(? AS bigint[]), favoriteBooksIds = CAST(? AS bigint[]) WHERE id = ?";
 
-        try (Connection connection = getConnection();
+        try (Connection connection = databaseService.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             // Set the values for the update query
