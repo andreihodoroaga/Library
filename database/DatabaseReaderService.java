@@ -1,7 +1,11 @@
 package database;
 
+import org.postgresql.jdbc.PgArray;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,13 +13,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseReaderService<T> {
     private static DatabaseReaderService instance;
     private Connection connection;
 
-    private DatabaseReaderService() {
+    private final AuditService auditService;
+
+    private DatabaseReaderService(AuditService auditService) {
+        this.auditService = auditService;
+
         // Initialize the database connection
         String url = "jdbc:postgresql://localhost:5432/library";
         String username = "postgres";
@@ -32,7 +41,7 @@ public class DatabaseReaderService<T> {
     // Method to get the singleton instance
     public static DatabaseReaderService getInstance() {
         if (instance == null) {
-            instance = new DatabaseReaderService();
+            instance = new DatabaseReaderService(new AuditService("audit.csv"));
         }
         return instance;
     }
@@ -60,6 +69,7 @@ public class DatabaseReaderService<T> {
             e.printStackTrace();
         }
 
+        auditService.writeAuditLog("read all from " + tableName);
         return resultList;
     }
 
@@ -69,8 +79,10 @@ public class DatabaseReaderService<T> {
             return null;
         }
 
+
         String tableName = getTableName(objectClass);
         String sql = generateSelectStatement(tableName) + " WHERE id = ?";
+        auditService.writeAuditLog("read from " + tableName);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, id);
@@ -116,6 +128,19 @@ public class DatabaseReaderService<T> {
                     LocalDate localDate = sqlDate.toLocalDate();
                     field.setAccessible(true);
                     field.set(object, localDate);
+                } else if (field.getType().equals(List.class) && field.getGenericType() instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    if (actualTypeArguments.length == 1 && actualTypeArguments[0].equals(Long.class)) {
+                        // Handle conversion from org.postgresql.jdbc.PgArray to List<Long>
+                        Object value = resultSet.getArray(columnName);
+                        if (value instanceof PgArray) {
+                            PgArray pgArray = (PgArray) value;
+                            List<Long> listValue = Arrays.asList((Long[]) pgArray.getArray());
+                            field.setAccessible(true);
+                            field.set(object, listValue);
+                        }
+                    }
                 } else {
                     // Handle other fields normally
                     Object value = resultSet.getObject(columnName);

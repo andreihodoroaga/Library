@@ -28,6 +28,12 @@ public class Main {
         DatabaseWriterService<Publisher> publisherWriterService = DatabaseWriterService.getInstance();
         PublisherService publisherService = new PublisherService(new PublisherRepository(publisherReaderService, publisherWriterService));
 
+        DatabaseReaderService<LibraryMember> libraryMemberReaderService = DatabaseReaderService.getInstance();
+        DatabaseWriterService<LibraryMember> libraryMemberWriterService = DatabaseWriterService.getInstance();
+        LibraryMemberService libraryMemberService = new LibraryMemberService(new LibraryMemberRepository(libraryMemberReaderService, libraryMemberWriterService));
+
+        LibraryManager libraryManager = new LibraryManager(bookService, authorService, publisherService, genreService, libraryMemberService, addressService);
+        libraryManager.start();
     }
 }
 

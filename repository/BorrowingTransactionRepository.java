@@ -1,5 +1,8 @@
 package repository;
+
 import domain.BorrowingTransaction;
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -7,30 +10,31 @@ import java.util.List;
 import java.util.Optional;
 
 public class BorrowingTransactionRepository {
-    private final List<BorrowingTransaction> transactions = new ArrayList<>();
+    private final DatabaseReaderService<BorrowingTransaction> readerService;
+    private final DatabaseWriterService<BorrowingTransaction> writerService;
 
-    // Make sure the transactions are sorted by the borrow date
+    public BorrowingTransactionRepository(DatabaseReaderService<BorrowingTransaction> readerService,
+                                          DatabaseWriterService<BorrowingTransaction> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
+    }
+
     public void add(BorrowingTransaction transaction) {
-        int i = 0;
-        while (i < transactions.size() && transaction.getBorrowDate().isAfter(transactions.get(i).getBorrowDate())) {
-            i++;
-        }
-        transactions.add(i, transaction);
+        writerService.write(transaction);
     }
 
     public Optional<BorrowingTransaction> findById(Long id) {
-        return transactions.stream()
-                .filter(t -> t.getBook().getId().equals(id))
-                .findFirst();
+        return Optional.ofNullable(readerService.read(BorrowingTransaction.class, id));
     }
 
     public List<BorrowingTransaction> findAll() {
-        return new ArrayList<>(transactions);
+        return readerService.readAll(BorrowingTransaction.class);
     }
 
     public List<BorrowingTransaction> findByMemberId(String memberId) {
         List<BorrowingTransaction> result = new ArrayList<>();
-        for (BorrowingTransaction transaction : transactions) {
+        List<BorrowingTransaction> allTransactions = findAll();
+        for (BorrowingTransaction transaction : allTransactions) {
             if (transaction.getMember().getMemberId().equals(memberId)) {
                 result.add(transaction);
             }
@@ -40,7 +44,8 @@ public class BorrowingTransactionRepository {
 
     public List<BorrowingTransaction> findOverdueTransactions(LocalDate currentDate) {
         List<BorrowingTransaction> result = new ArrayList<>();
-        for (BorrowingTransaction transaction : transactions) {
+        List<BorrowingTransaction> allTransactions = findAll();
+        for (BorrowingTransaction transaction : allTransactions) {
             if (transaction.getDueDate().isBefore(currentDate)) {
                 result.add(transaction);
             }

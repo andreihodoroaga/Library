@@ -25,7 +25,11 @@ public class LibraryMemberService {
         return libraryMemberRepository.findAll();
     }
 
-    public void deleteById(Long id) {
-        libraryMemberRepository.deleteById(id);
+    public void delete(LibraryMember libraryMember) {
+        libraryMemberRepository.delete(libraryMember);
+    }
+
+    public void update(LibraryMember libraryMember) {
+        libraryMemberRepository.update(libraryMember);
     }
 }

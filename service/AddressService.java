@@ -17,7 +17,7 @@ public class AddressService {
         addressRepository.add(address);
     }
 
-    public Address getAddressById(int id) {
+    public Address getAddressById(Long id) {
         return addressRepository.getAddressById(id);
     }
 
@@ -29,7 +29,7 @@ public class AddressService {
         addressRepository.update(address);
     }
 
-    public void delete(int addressId) {
+    public void delete(Long addressId) {
         addressRepository.delete(addressId);
     }
 

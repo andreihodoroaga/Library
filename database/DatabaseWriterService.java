@@ -2,16 +2,18 @@ package database;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseWriterService<T> {
     private static DatabaseWriterService instance;
     private Connection connection;
+    private AuditService auditService;
 
-    private DatabaseWriterService() {
+    private DatabaseWriterService(AuditService auditService) {
+        this.auditService = auditService;
+
         // Initialize the database connection
         String url = "jdbc:postgresql://localhost:5432/library";
         String username = "postgres";
@@ -28,7 +30,7 @@ public class DatabaseWriterService<T> {
     // Method to get the singleton instance
     public static DatabaseWriterService getInstance() {
         if (instance == null) {
-            instance = new DatabaseWriterService();
+            instance = new DatabaseWriterService(new AuditService("audit.csv"));
         }
         return instance;
     }
@@ -43,11 +45,63 @@ public class DatabaseWriterService<T> {
         String sql = generateInsertStatement(object, tableName);
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            setStatementParameters(statement, object);
             statement.executeUpdate();
 
+            auditService.writeAuditLog("write to " + tableName);
             System.out.println("Data written to the database successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setStatementParameters(PreparedStatement statement, T object) throws SQLException {
+        Class<?> objectClass = object.getClass();
+        Field[] fields = objectClass.getDeclaredFields();
+
+        int parameterIndex = 1;
+        for (Field field : fields) {
+            // Exclude static and synthetic fields
+            if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                continue;
+            }
+
+            if (field.getName().equals("id")) {
+                continue; // Skip the id field
+            }
+
+            field.setAccessible(true); // Enable access to private fields if necessary
+
+            try {
+                Object value = field.get(object);
+
+                if (value instanceof List) {
+                    List<?> listValue = (List<?>) value;
+
+                    if (field.getName().equals("author_ids")) {
+                        Long[] arrayValue = listValue.toArray(new Long[0]);
+
+                        // Manually create an array of java.sql.Array objects
+                        Array[] authorIdArrays = new Array[arrayValue.length];
+                        for (int i = 0; i < arrayValue.length; i++) {
+                            authorIdArrays[i] = connection.createArrayOf("bigint", new Object[]{arrayValue[i]});
+                        }
+
+                        // Set the array of java.sql.Array objects as the parameter value
+                        statement.setArray(parameterIndex, connection.createArrayOf("bigint", authorIdArrays));
+                    } else {
+                        // Convert the ArrayList to an Array and set it as the parameter value
+                        Array array = connection.createArrayOf("varchar", listValue.toArray());
+                        statement.setArray(parameterIndex, array);
+                    }
+                } else {
+                    statement.setObject(parameterIndex, value);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            parameterIndex++;
         }
     }
 
@@ -63,6 +117,7 @@ public class DatabaseWriterService<T> {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.executeUpdate();
 
+            auditService.writeAuditLog("update to " + tableName);
             System.out.println("Data updated in the database successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -81,6 +136,7 @@ public class DatabaseWriterService<T> {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.executeUpdate();
 
+            auditService.writeAuditLog("delete from " + tableName);
             System.out.println("Data deleted from the database successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -135,7 +191,20 @@ public class DatabaseWriterService<T> {
             if (field.getName().equals("id")) {
                 continue; // Skip the id column
             }
-            sqlBuilder.append(getFieldValue(object, field));
+
+            // Check if the field is an ArrayList
+            if (field.getType().equals(List.class)) {
+                String columnName = field.getName();
+
+                // Handle the "author_ids" field separately
+                if (columnName.equals("authorIds")) {
+                    sqlBuilder.append("CAST(? AS bigint[])");
+                } else {
+                    sqlBuilder.append("CAST(? AS varchar[])");
+                }
+            } else {
+                sqlBuilder.append("?"); // Placeholder for non-ArrayList fields
+            }
 
             // Append comma for all placeholders except the last one
             if (i < fields.length - 1) {
@@ -147,6 +216,7 @@ public class DatabaseWriterService<T> {
 
         return sqlBuilder.toString();
     }
+
 
     private String generateUpdateStatement(T object, String tableName) {
         StringBuilder sqlBuilder = new StringBuilder();

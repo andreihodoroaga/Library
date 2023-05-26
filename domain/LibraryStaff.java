@@ -4,8 +4,8 @@ public class LibraryStaff extends LibraryPerson {
     private String staffId;
     private String jobTitle;
 
-    public LibraryStaff(Long id, String name, String email, Address address, String staffId, String jobTitle) {
-        super(id, name, email, address);
+    public LibraryStaff(String name, String email, Long addressId, String staffId, String jobTitle) {
+        super(name, email, addressId);
         this.staffId = staffId;
         this.jobTitle = jobTitle;
     }

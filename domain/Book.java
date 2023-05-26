@@ -8,19 +8,24 @@ import java.util.Objects;
 public class Book {
     private Long id;
     private String title;
-    private List<Author> authors = new ArrayList<>();
-    private Publisher publisher;
+    private List<Long> authorIds;
+    private Long publisherId;
     private LocalDate publicationDate;
-    private Genre genre;
+    private Long genreId;
     private int count;
     private List<String> reviews;
 
-    public Book(String title, Publisher publisher, LocalDate publicationDate, Genre genre, int count) {
+    public Book(String title, List<Long> authorIds, Long publisherId, LocalDate publicationDate, Long genreId, int count) {
         this.title = title;
-        this.publisher = publisher;
+        this.authorIds = authorIds;
+        this.publisherId = publisherId;
         this.publicationDate = publicationDate;
-        this.genre = genre;
+        this.genreId = genreId;
         this.count = count;
+    }
+
+    public Book() {
+        // default constructor
     }
 
     public Long getId() {
@@ -31,9 +36,13 @@ public class Book {
         this.id = id;
     }
 
-    public int getCount() { return count; }
+    public int getCount() {
+        return count;
+    }
 
-    public void setCount(int count) { this.count = count; }
+    public void setCount(int count) {
+        this.count = count;
+    }
 
     public String getTitle() {
         return title;
@@ -43,20 +52,20 @@ public class Book {
         this.title = title;
     }
 
-    public List<Author> getAuthors() {
-        return authors;
+    public List<Long> getAuthorIds() {
+        return authorIds;
     }
 
-    public void setAuthors(List<Author> authors) {
-        this.authors = authors;
+    public void setAuthorIds(List<Long> authorIds) {
+        this.authorIds = authorIds;
     }
 
-    public Publisher getPublisher() {
-        return publisher;
+    public Long getPublisherId() {
+        return publisherId;
     }
 
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
+    public void setPublisherId(Long publisherId) {
+        this.publisherId = publisherId;
     }
 
     public LocalDate getPublicationDate() {
@@ -67,15 +76,17 @@ public class Book {
         this.publicationDate = publicationDate;
     }
 
-    public Genre getGenre() {
-        return genre;
+    public Long getGenreId() {
+        return genreId;
     }
 
-    public void setGenre(Genre genre) {
-        this.genre = genre;
+    public void setGenreId(Long genreId) {
+        this.genreId = genreId;
     }
 
-    public List<String> getReviews() { return reviews; }
+    public List<String> getReviews() {
+        return reviews;
+    }
 
     public void addReview(String review) {
         if (!Objects.equals(review, "")) {

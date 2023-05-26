@@ -1,17 +1,20 @@
 package domain;
 
 public class LibraryPerson {
-    private Long id;
+    protected Long id;
 
     private String name;
     private String email;
-    private Address address;
+    private Long addressId;
 
-    public LibraryPerson(Long id, String name, String email, Address address) {
-        this.id = id;
+    public LibraryPerson(String name, String email, Long addressId) {
         this.name = name;
         this.email = email;
-        this.address = address;
+        this.addressId = addressId;
+    }
+
+    public LibraryPerson() {
+        // default constructor
     }
 
     public Long getId() {
@@ -38,12 +41,12 @@ public class LibraryPerson {
         this.email = email;
     }
 
-    public Address getAddress() {
-        return address;
+    public Long getAddressId() {
+        return addressId;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setAddress(Long addressId) {
+        this.addressId = addressId;
     }
 
     @Override

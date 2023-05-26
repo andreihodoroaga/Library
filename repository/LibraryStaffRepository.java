@@ -1,36 +1,38 @@
 package repository;
 
 import domain.LibraryStaff;
+import database.DatabaseReaderService;
+import database.DatabaseWriterService;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;;
-import java.util.Map;
-
 
 public class LibraryStaffRepository {
+    private final DatabaseReaderService<LibraryStaff> readerService;
+    private final DatabaseWriterService<LibraryStaff> writerService;
 
-    private Map<Long, LibraryStaff> staffMap = new HashMap<>();
-    private long nextId = 1L;
+    public LibraryStaffRepository(DatabaseReaderService<LibraryStaff> readerService,
+                                  DatabaseWriterService<LibraryStaff> writerService) {
+        this.readerService = readerService;
+        this.writerService = writerService;
+    }
 
     public LibraryStaff findById(Long id) {
-        return staffMap.get(id);
+        return readerService.read(LibraryStaff.class, id);
     }
 
     public List<LibraryStaff> findAll() {
-        return new ArrayList<>(staffMap.values());
+        return readerService.readAll(LibraryStaff.class);
     }
 
     public void save(LibraryStaff libraryStaff) {
-        libraryStaff.setId(nextId++);
-        staffMap.put(libraryStaff.getId(), libraryStaff);
+        writerService.write(libraryStaff);
     }
 
     public void update(LibraryStaff libraryStaff) {
-        staffMap.put(libraryStaff.getId(), libraryStaff);
+        writerService.update(libraryStaff);
     }
 
-    public void delete(Long id) {
-        staffMap.remove(id);
+    public void delete(LibraryStaff libraryStaff) {
+        writerService.delete(libraryStaff);
     }
 }

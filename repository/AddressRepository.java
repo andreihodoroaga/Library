@@ -15,8 +15,8 @@ public class AddressRepository {
         this.writerService = writerService;
     }
 
-    public Address getAddressById(int id) {
-        return readerService.read(Address.class, (long) id);
+    public Address getAddressById(Long id) {
+        return readerService.read(Address.class, id);
     }
 
     public List<Address> getAllAddresses() {
@@ -31,7 +31,7 @@ public class AddressRepository {
         writerService.update(address);
     }
 
-    public void delete(int id) {
+    public void delete(Long id) {
         Address address = getAddressById(id);
         if (address != null) {
             writerService.delete(address);

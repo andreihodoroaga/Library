@@ -1,7 +1,7 @@
 package domain;
 
 public class Address {
-    private int id;
+    private Long id;
     private String street;
     private String city;
     private String state;
@@ -16,7 +16,11 @@ public class Address {
         this.number = number;
     }
 
-    public int getId() {
+    public Address() {
+        // default constructor
+    }
+
+    public Long getId() {
         return id;
     }
 
@@ -62,6 +66,6 @@ public class Address {
 
     @Override
     public String toString() {
-        return String.format("%s %d, %s, %s %s", street, number, city, state, postalCode);
+        return String.format("%s, %s, %s %s", street, city, state, postalCode);
     }
 }

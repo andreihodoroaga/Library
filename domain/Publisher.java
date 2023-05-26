@@ -10,6 +10,10 @@ public class Publisher {
         this.location = location;
     }
 
+    public Publisher() {
+        // default constructor
+    }
+
     public Long getId() {
         return id;
     }

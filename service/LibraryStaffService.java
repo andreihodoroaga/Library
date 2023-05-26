@@ -28,7 +28,7 @@ public class LibraryStaffService {
         libraryStaffRepository.update(libraryStaff);
     }
 
-    public void delete(Long id) {
-        libraryStaffRepository.delete(id);
+    public void delete(LibraryStaff libraryStaff) {
+        libraryStaffRepository.delete(libraryStaff);
     }
 }

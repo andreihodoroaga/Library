@@ -12,6 +12,10 @@ public class Genre {
         this.popularityScore = popularityScore;
     }
 
+    public Genre() {
+        // default constructor
+    }
+
     public Long getId() {
         return id;
     }
